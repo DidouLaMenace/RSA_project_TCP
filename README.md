@@ -26,11 +26,11 @@ code .
 
 ### Compiler l'application
 
-```
-#En utilisant le Makefile
+```bash
+# En utilisant le Makefile
 make projectRSA
 
-#En utilisant le compilateur gcc
+# En utilisant le compilateur gcc
 gcc -c projectRSA_client.c projectRSA_serv.c
 gcc -o projectRSA_client projectRSA_client.o
 gcc -o projectRSA_serv projectRSA_serv.o
@@ -38,22 +38,22 @@ gcc -o projectRSA_serv projectRSA_serv.o
 
 ### Exécuter le serveur
 
-```
-#En utilisant le Makefile
+```bash
+# En utilisant le Makefile
 make projectRSA_client
 
-#En utilisant le compilateur gcc
+# En utilisant le compilateur gcc
 gcc -c projectRSA_client.c
 gcc -o projectRSA_client projectRSA_client.o
 ./projectRSA_client 127.0.0.1 8080
 ```
 ### Exécuter le client
 
-```
-#En utilisant le Makefile
+```bash
+# En utilisant le Makefile
 make projectRSA_serv
 
-#En utilisant le compilateur gcc
+# En utilisant le compilateur gcc
 gcc -c projectRSA_serv.c
 gcc -o projectRSA_serv projectRSA_serv.o
 ./projectRSA_serv
