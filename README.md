@@ -45,7 +45,7 @@ make projectRSA_client
 # En utilisant le compilateur gcc
 gcc -c projectRSA_client.c
 gcc -o projectRSA_client projectRSA_client.o
-./projectRSA_client 127.0.0.1 8080
+./projectRSA_client < IP address > < PORT >
 ```
 ### Exécuter le client
 
@@ -56,7 +56,7 @@ make projectRSA_serv
 # En utilisant le compilateur gcc
 gcc -c projectRSA_serv.c
 gcc -o projectRSA_serv projectRSA_serv.o
-./projectRSA_serv
+./projectRSA_serv < IP address > < PORT >
 ```
 
 ## Les différents niveaux

@@ -11,4 +11,9 @@ projectRSA_client:
 projectRSA_serv:
 	gcc -c projectRSA_serv.c
 	gcc -o projectRSA_serv projectRSA_serv.o
-	./projectRSA_serv
+	./projectRSA_serv 127.0.0.1 8080
+
+clean: 
+	rm *.o
+	rm projectRSA_client
+	rm projectRSA_serv
