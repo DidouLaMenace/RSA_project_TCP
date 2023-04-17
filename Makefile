@@ -1,19 +1,18 @@
 projectRSA:
-	gcc -c projectRSA_client.c projectRSA_serv.c
-	gcc -o projectRSA_client projectRSA_client.o
-	gcc -o projectRSA_serv projectRSA_serv.o
+	gcc -c src/projectRSA_client.c -o build/projectRSA_client.o
+	gcc -c src/projectRSA_serv.c -o build/projectRSA_serv.o
+	gcc build/projectRSA_client.o -o build/projectRSA_client
+	gcc build/projectRSA_serv.o -o build/projectRSA_serv
 
 projectRSA_client:
-	gcc -c projectRSA_client.c
-	gcc -o projectRSA_client projectRSA_client.o
-	./projectRSA_client 127.0.0.1 8080
+	gcc -c src/projectRSA_client.c -o build/projectRSA_client.o
+	gcc build/projectRSA_client.o -o build/projectRSA_client
+	./build/projectRSA_client 127.0.0.1 8080
 
 projectRSA_serv:
-	gcc -c projectRSA_serv.c
-	gcc -o projectRSA_serv projectRSA_serv.o
-	./projectRSA_serv 127.0.0.1 8080
+	gcc -c src/projectRSA_serv.c -o build/projectRSA_serv.o
+	gcc build/projectRSA_serv.o -o build/projectRSA_serv
+	./build/projectRSA_serv 127.0.0.1 8080
 
 clean: 
-	rm *.o
-	rm projectRSA_client
-	rm projectRSA_serv
+	rm build/*
