@@ -31,32 +31,44 @@ code .
 make projectRSA
 
 # En utilisant le compilateur gcc
-gcc -c projectRSA_client.c projectRSA_serv.c
-gcc -o projectRSA_client projectRSA_client.o
-gcc -o projectRSA_serv projectRSA_serv.o
+rm build/*
+gcc -c src/projectRSA_client.c -o build/projectRSA_client.o
+gcc -c src/projectRSA_serv.c -o build/projectRSA_serv.o
+gcc build/projectRSA_client.o -o build/projectRSA_client
+gcc build/projectRSA_serv.o -o build/projectRSA_serv
 ```
 
-### Exécuter le serveur
-
-```bash
-# En utilisant le Makefile
-make projectRSA_client
-
-# En utilisant le compilateur gcc
-gcc -c projectRSA_client.c
-gcc -o projectRSA_client projectRSA_client.o
-./projectRSA_client < IP address > < PORT >
-```
-### Exécuter le client
+### Compiler le serveur
 
 ```bash
 # En utilisant le Makefile
 make projectRSA_serv
 
 # En utilisant le compilateur gcc
-gcc -c projectRSA_serv.c
-gcc -o projectRSA_serv projectRSA_serv.o
-./projectRSA_serv < IP address > < PORT >
+gcc -c src/projectRSA_serv.c -o build/projectRSA_serv.o
+gcc build/projectRSA_serv.o -o build/projectRSA_serv
+```
+
+### Compiler le client
+
+```bash
+# En utilisant le Makefile
+make projectRSA_client
+
+# En utilisant le compilateur gcc
+gcc -c src/projectRSA_client.c -o build/projectRSA_client.o
+gcc build/projectRSA_client.o -o build/projectRSA_client
+```
+
+### Exécuter le serveur
+
+```bash
+./build/projectRSA_serv
+```
+### Exécuter le client
+
+```bash
+./build/projectRSA_client
 ```
 
 ## Les différents niveaux
