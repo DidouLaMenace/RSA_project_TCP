@@ -1,5 +1,7 @@
 projectRSA:
 	rm build/*
+	gcc -c src/processing_request.c -o build/processing_request.o
+	gcc -c src/robots.c -o build/robots.o
 	gcc -c src/projectRSA_client.c -o build/projectRSA_client.o
 	gcc -c src/projectRSA_serv.c -o build/projectRSA_serv.o
 	gcc build/projectRSA_client.o -o build/projectRSA_client

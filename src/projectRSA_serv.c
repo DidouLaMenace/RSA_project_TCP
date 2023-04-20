@@ -5,11 +5,13 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+#include "processing_request.c"
+
 #define PORT 8888
 
 int main()
 {
-    int server_socket, client_socket, level, n;
+    int server_socket, client_socket, n;
     struct sockaddr_in server_address, client_address;
     char message[1024], response[1024];
     
@@ -21,7 +23,7 @@ int main()
         exit(1);
     }
     
-    // Server Address
+    // Server Address by default 127.0.0.1, number of port choose randomly
     server_address.sin_family = AF_INET;
     server_address.sin_addr.s_addr = INADDR_ANY;
     server_address.sin_port = htons(PORT);
@@ -61,26 +63,30 @@ int main()
         
         printf("Received message from client: %s\n", message);
         
+        
+        // Process message
+        strcpy(response, processing(message));
+        
         // Process message send to the server
-        level = message[0] - '0';
-        switch (level)
-        {
-            case 1:
-                // TODO : implement level 1
-                strcpy(response, "Response from robot");
-                break;
-            case 2:
-                // TODO : implement level 2
-                strcpy(response, "Response from level 2 technicians");
-                break;
-            case 3:
-                // TODO : implement level 3
-                strcpy(response, "Response from level 3 experts");
-                break;
-            default:
-                strcpy(response, "Invalid level");
-                break;
-        }
+        // level = message[0] - '0';
+        // switch (level)
+        // {
+        //     case 1:
+        //         // TODO : implement level 1
+        //         strcpy(response, "Response from robot");
+        //         break;
+        //     case 2:
+        //         // TODO : implement level 2
+        //         strcpy(response, "Response from level 2 technicians");
+        //         break;
+        //     case 3:
+        //         // TODO : implement level 3
+        //         strcpy(response, "Response from level 3 experts");
+        //         break;
+        //     default:
+        //         strcpy(response, "Invalid level");
+        //         break;
+        // }
         
         // Send response to client
         if (write(client_socket, response, strlen(response)) < 0)
