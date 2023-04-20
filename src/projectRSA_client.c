@@ -53,7 +53,7 @@ int main()
         exit(1);
     }
     
-    printf("Response from server: %s\n", response);
+    printf("%s\n", response);
     
     // Close connection
     //close(client_socket);

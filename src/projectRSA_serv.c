@@ -95,6 +95,7 @@ int main()
             exit(1);
         }
         
+
         printf("Response sent to client: %s\n", response);
         
         // Close connection
