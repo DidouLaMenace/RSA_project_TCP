@@ -4,6 +4,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <ctype.h>
 
 #include "robots.c"
 #include "technicians.c"
@@ -12,11 +13,39 @@
 #define MAX_SIZE_ANSWER 1000
 #define PORT 8888
 
+// Get the authentification message from the client without the \0 and any space
+void clear_str(char* str)
+{
+    int start = 0;
+    int end = strlen(str) - 1;
+
+    // Trim leading whitespace
+    while (isspace(str[start]))
+    {
+        start++;
+    }
+
+    // Trim trailing whitespace
+    while ((end >= start) && isspace(str[end]))
+    {
+        end--;
+    }
+
+    // Move remaining characters to start of string
+    int i;
+    for (i = start; i <= end; i++)
+    {
+        str[i - start] = str[i];
+    }
+    str[i - start] = '\0';  // Null-terminate the trimmed string
+}
+
 int main()
 {
     int server_socket, new_socket, client_socket, technician_socket, expert_socket, n;
     struct sockaddr_in server_address, client_address;
     char message[1024];
+    char auth_message[1024];
     char *response;
     
     // Create socket
@@ -58,14 +87,32 @@ int main()
         printf("Connection accepted from %s:%d\n", inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
         
         // Read Authentification message
-        memset(message, 0, sizeof(message));
-        if (read(client_socket, message, sizeof(message)) < 0)
+        memset(auth_message, 0, sizeof(auth_message));
+        if (read(client_socket, auth_message, sizeof(auth_message)) < 0)
         {
             printf("Error reading message\n");
             exit(1);
         }
 
-        printf("Received authentification message from client: %s\n", message);
+        printf("Authentification message : %s", auth_message);
+
+        clear_str(auth_message);
+
+        if (strcmp(auth_message, "client") == 0) {
+            printf("Client connected\n");
+        }
+        else if (strcmp(auth_message, "technician") == 0) {
+            printf("Technician connected\n");
+        }
+        else if (strcmp(auth_message, "expert") == 0) {
+            printf("Expert connected\n");
+        }
+        else {
+            printf("Unknown user\n");
+        }
+
+
+
 
         // Read incoming message
         memset(message, 0, sizeof(message));
