@@ -5,15 +5,19 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
-#include "processing_request.c"
+#include "robots.c"
+#include "technicians.c"
+#include "experts.c"
 
+#define MAX_SIZE_ANSWER 1000
 #define PORT 8888
 
 int main()
 {
-    int server_socket, client_socket, n;
+    int server_socket, new_socket, client_socket, technician_socket, expert_socket, n;
     struct sockaddr_in server_address, client_address;
-    char message[1024], response[1024];
+    char message[1024];
+    char *response;
     
     // Create socket
     server_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -50,9 +54,19 @@ int main()
             printf("Error accepting connection\n");
             exit(1);
         }
-        
+
         printf("Connection accepted from %s:%d\n", inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
         
+        // Read Authentification message
+        memset(message, 0, sizeof(message));
+        if (read(client_socket, message, sizeof(message)) < 0)
+        {
+            printf("Error reading message\n");
+            exit(1);
+        }
+
+        printf("Received authentification message from client: %s\n", message);
+
         // Read incoming message
         memset(message, 0, sizeof(message));
         if (read(client_socket, message, sizeof(message)) < 0)
@@ -63,29 +77,34 @@ int main()
         
         printf("Received message from client: %s\n", message);
         
-        
         // Process message
-        strcpy(response, processing(message));
-        
-        // Process message send to the server
-        // level = message[0] - '0';
-        // switch (level)
-        // {
-        //     case 1:
-        //         // TODO : implement level 1
-        //         strcpy(response, "Response from robot");
-        //         break;
-        //     case 2:
-        //         // TODO : implement level 2
-        //         strcpy(response, "Response from level 2 technicians");
-        //         break;
-        //     case 3:
-        //         // TODO : implement level 3
-        //         strcpy(response, "Response from level 3 experts");
-        //         break;
-        //     default:
-        //         strcpy(response, "Invalid level");
-        //         break;
+        response = processing_robots(message);
+
+        if (response != NULL) {
+            char responsefrom[MAX_SIZE_ANSWER] = "Response from robot : ";
+            response = strncat(responsefrom,response,MAX_SIZE_ANSWER+MAX_SIZE_ANSWER);
+        } 
+        else {
+            response = "after";
+        }
+        // else {
+        //     response = processing_technicians(message);
+
+        //     if (response != NULL) {
+        //         char responsefrom[MAX_SIZE_ANSWER] = "Response from a technician : ";
+        //         response = strncat(responsefrom,response,MAX_SIZE_ANSWER+MAX_SIZE_ANSWER);
+        //     } 
+        //     else {
+        //         response = processing_experts(message);
+
+        //         if (response != NULL) {
+        //             char responsefrom[MAX_SIZE_ANSWER] = "Response from an expert : ";
+        //             response = strncat(responsefrom,response,MAX_SIZE_ANSWER+MAX_SIZE_ANSWER);
+        //         }
+        //         else {
+        //             response = "No one can process the request";
+        //         }
+        //     }
         // }
         
         // Send response to client
