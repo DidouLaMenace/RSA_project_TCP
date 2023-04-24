@@ -5,6 +5,8 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+#include "utils.c"
+
 #define SERVER_IP "127.0.0.1"
 #define PORT 8888
 
@@ -47,30 +49,53 @@ int main(int argc, char *argv[])
         printf("Error sending message\n");
         exit(1);
     }
+    
+    clear_str(auth_message);
 
-    // Read message from user
-    printf("Enter your message: ");
-    fgets(message, sizeof(message), stdin);
-
-    // Send message to server
-    if (write(client_socket, message, strlen(message)) < 0)
+    // Processing client part
+    if (strcmp(auth_message, "client") == 0)
     {
-        printf("Error sending message\n");
+        printf("CLIENT\n");
+        printf("Enter your message: ");
+        fgets(message, sizeof(message), stdin);
+
+        // Send message to server
+        if (write(client_socket, message, strlen(message)) < 0)
+        {
+            printf("Error sending message\n");
+            exit(1);
+        }
+
+        // Read response from server
+        memset(response, 0, sizeof(response));
+        if (read(client_socket, response, sizeof(response)) < 0)
+        {
+            printf("Error reading response\n");
+            exit(1);
+        }
+
+        printf("%s\n", response);
+
+        // Close connection
+        close(client_socket);
+    }
+    // Processint technician part
+    else if (strcmp(auth_message, "technician") == 0)
+    {
+        printf("Enter your message: ");
+        fgets(message, sizeof(message), stdin);
+    }
+    // Processing experts part
+    else if (strcmp(auth_message, "experts") == 0)
+    {
+        printf("Enter your message: ");
+        fgets(message, sizeof(message), stdin);
+    }
+    else
+    {
+        printf("Error\n");
         exit(1);
     }
-
-    // Read response from server
-    memset(response, 0, sizeof(response));
-    if (read(client_socket, response, sizeof(response)) < 0)
-    {
-        printf("Error reading response\n");
-        exit(1);
-    }
-
-    printf("%s\n", response);
-
-    // Close connection
-    close(client_socket);
 
     return 0;
 }

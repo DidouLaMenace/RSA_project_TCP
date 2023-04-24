@@ -10,38 +10,12 @@
 #include "robots.c"
 #include "technicians.c"
 #include "experts.c"
+#include "utils.c"
 
 #define MAX_SIZE_ANSWER 1000
 #define PORT 8888
 
-// Get the authentification message from the client without the \0 and any space
-void clear_str(char* str)
-{
-    int start = 0;
-    int end = strlen(str) - 1;
-
-    // Trim leading whitespace
-    while (isspace(str[start]))
-    {
-        start++;
-    }
-
-    // Trim trailing whitespace
-    while ((end >= start) && isspace(str[end]))
-    {
-        end--;
-    }
-
-    // Move remaining characters to start of string
-    int i;
-    for (i = start; i <= end; i++)
-    {
-        str[i - start] = str[i];
-    }
-    str[i - start] = '\0';  // Null-terminate the trimmed string
-}
-
-void *client_handler(void *arg)
+void *client_threading(void *arg)
 {
     int client_socket = *(int *)arg;
     char message[1024];
@@ -73,10 +47,24 @@ void *client_handler(void *arg)
 
     if (response != NULL) {
         char responsefrom[MAX_SIZE_ANSWER] = "Response from robot : ";
-        response = strncat(responsefrom,response,MAX_SIZE_ANSWER+MAX_SIZE_ANSWER);
+        response = strncat(responsefrom,response,2*MAX_SIZE_ANSWER);
     } 
     else {
-        response = "after";
+        response = processing_technicians(message);
+        if (response != NULL) {
+            char responsefrom[MAX_SIZE_ANSWER] = "Response from technician : ";
+            response = strncat(responsefrom,response,2*+MAX_SIZE_ANSWER);
+        }
+        else {
+            response = processing_experts(message);
+            if (response != NULL) {
+                char responsefrom[MAX_SIZE_ANSWER] = "Response from expert : ";
+                response = strncat(responsefrom,response,2*MAX_SIZE_ANSWER);
+            }
+            else {
+                response = "No one can help you, sorry.\n";
+            }
+        }
     }
 
     // Send response to client
@@ -126,10 +114,10 @@ int main()
     // Listen for incoming connections
     listen(server_socket, 3);
 
+    printf("Waiting for incoming connections...\n");
+
     while(1)
     {
-        // printf("\nWaiting for incoming connections...\n");
-        
         // Accept incoming connection
         n = sizeof(client_address);
         client_socket = accept(server_socket, (struct sockaddr*)&client_address, (socklen_t*)&n);
@@ -153,88 +141,34 @@ int main()
 
         clear_str(auth_message);
 
+        // We process the request from a client
         if (strcmp(auth_message, "client") == 0) {
             printf("Client connected\n");
+            // Create thread for client
+            pthread_t client_thread;
+            int *socket_thread = malloc(sizeof(int));
+            *socket_thread = client_socket;
+            if (pthread_create(&client_thread, NULL, client_threading, (void *)socket_thread) < 0)
+            {
+                printf("Error creating thread\n");
+                close(client_socket);
+                free(socket_thread);
+                continue;
+            }
+
+            pthread_detach(client_thread);
         }
+        // We set up the interface for the technician
         else if (strcmp(auth_message, "technician") == 0) {
             printf("Technician connected\n");
         }
+        // We set up the interface for the expert
         else if (strcmp(auth_message, "expert") == 0) {
             printf("Expert connected\n");
         }
         else {
             printf("Unknown user\n");
         }
-
-        // Create thread for client
-        pthread_t client_thread;
-        int *socket_thread = malloc(sizeof(int));
-        *socket_thread = client_socket;
-        if (pthread_create(&client_thread, NULL, client_handler, (void *)socket_thread) < 0)
-        {
-            printf("Error creating thread\n");
-            close(client_socket);
-            free(socket_thread);
-            continue;
-        }
-
-        pthread_detach(client_thread);
-
-
-
-
-        // // Read incoming message
-        // memset(message, 0, sizeof(message));
-        // if (read(client_socket, message, sizeof(message)) < 0)
-        // {
-        //     printf("Error reading message\n");
-        //     exit(1);
-        // }
-        
-        // printf("Received message from client: %s\n", message);
-        
-        // // Process message
-        // response = processing_robots(message);
-
-        // if (response != NULL) {
-        //     char responsefrom[MAX_SIZE_ANSWER] = "Response from robot : ";
-        //     response = strncat(responsefrom,response,MAX_SIZE_ANSWER+MAX_SIZE_ANSWER);
-        // } 
-        // else {
-        //     response = "after";
-        // }
-        // // else {
-        // //     response = processing_technicians(message);
-
-        // //     if (response != NULL) {
-        // //         char responsefrom[MAX_SIZE_ANSWER] = "Response from a technician : ";
-        // //         response = strncat(responsefrom,response,MAX_SIZE_ANSWER+MAX_SIZE_ANSWER);
-        // //     } 
-        // //     else {
-        // //         response = processing_experts(message);
-
-        // //         if (response != NULL) {
-        // //             char responsefrom[MAX_SIZE_ANSWER] = "Response from an expert : ";
-        // //             response = strncat(responsefrom,response,MAX_SIZE_ANSWER+MAX_SIZE_ANSWER);
-        // //         }
-        // //         else {
-        // //             response = "No one can process the request";
-        // //         }
-        // //     }
-        // // }
-        
-        // // Send response to client
-        // if (write(client_socket, response, strlen(response)) < 0)
-        // {
-        //     printf("Error sending response\n");
-        //     exit(1);
-        // }
-        
-
-        // printf("Response sent to client: %s\n", response);
-        
-        // // Close connection
-        // close(client_socket);
     }
     
     close(server_socket);
