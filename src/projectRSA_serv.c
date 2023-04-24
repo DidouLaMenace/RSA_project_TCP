@@ -47,6 +47,15 @@ void *client_handler(void *arg)
     char message[1024];
     char *response;
 
+    struct sockaddr_in client_address;
+    socklen_t client_address_len = sizeof(client_address);
+
+    if (getpeername(client_socket, (struct sockaddr*)&client_address, &client_address_len) < 0)
+    {
+        printf("Error getting client address\n");
+        exit(1);
+    }
+
     // Read incoming message
     memset(message, 0, sizeof(message));
     if (read(client_socket, message, sizeof(message)) < 0)
@@ -55,7 +64,9 @@ void *client_handler(void *arg)
         exit(1);
     }
 
-    printf("Received message from client: %s\n", message);
+    clear_str(message);
+    
+    printf("Received message from client %s:%d : %s\n", inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port),message);
 
     // Process message
     response = processing_robots(message);
@@ -75,7 +86,7 @@ void *client_handler(void *arg)
         exit(1);
     }
 
-    printf("Response sent to client: %s\n", response);
+    printf("Response sent to client %s:%d : %s\n", inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port), response);
 
     // Close connection
     close(client_socket);
@@ -117,7 +128,7 @@ int main()
 
     while(1)
     {
-        printf("Waiting for incoming connections...\n");
+        // printf("\nWaiting for incoming connections...\n");
         
         // Accept incoming connection
         n = sizeof(client_address);
