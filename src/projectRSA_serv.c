@@ -21,7 +21,7 @@
 Technician technicians[NUMBER_MAX_OF_TECHNICIANS];
 int nb_technician = 0;
 
-// Processing client's request
+// Processing client's request with multi-threading to treat several clients at the same time
 void *client_threading(void *arg)
 {
     int client_socket = *(int *)arg;
@@ -95,6 +95,7 @@ char* processing_technicians(char *message) {
     char* response = "Message sent to technicians\n";
     for (int i = 0; i < nb_technician; i++) {
         int technician_socket = technicians[i].socket;
+        message = strncat(message, "(from technician)", 2*MAX_SIZE_ANSWER);
         if (send(technician_socket, message, strlen(message), 0) < 0) {
             printf("Error sending message to technician\n");
             exit(1);
