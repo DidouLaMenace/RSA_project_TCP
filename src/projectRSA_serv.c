@@ -8,13 +8,20 @@
 #include <pthread.h>
 
 #include "robots.c"
-#include "technicians.c"
+#include "technician.h"
 #include "experts.c"
 #include "utils.c"
 
 #define MAX_SIZE_ANSWER 1000
+#define NUMBER_MAX_OF_TECHNICIANS 10
 #define PORT 8888
 
+    
+// Technician
+Technician technicians[NUMBER_MAX_OF_TECHNICIANS];
+int nb_technician = 0;
+
+// Processing client's request
 void *client_threading(void *arg)
 {
     int client_socket = *(int *)arg;
@@ -53,7 +60,7 @@ void *client_threading(void *arg)
         response = processing_technicians(message);
         if (response != NULL) {
             char responsefrom[MAX_SIZE_ANSWER] = "Response from technician : ";
-            response = strncat(responsefrom,response,2*+MAX_SIZE_ANSWER);
+            response = strncat(responsefrom,response,2*MAX_SIZE_ANSWER);
         }
         else {
             response = processing_experts(message);
@@ -82,15 +89,47 @@ void *client_threading(void *arg)
     return NULL;
 }
 
+// Sending client's request to all technicians
+char* processing_technicians(char *message) {
+    printf("Sending request to all technicians\n"); 
+    char* response = "Message sent to technicians\n";
+    for (int i = 0; i < nb_technician; i++) {
+        int technician_socket = technicians[i].socket;
+        if (send(technician_socket, message, strlen(message), 0) < 0) {
+            printf("Error sending message to technician\n");
+            exit(1);
+        }
+    }
+
+    return response;
+}
+
+// Add a technician to the list of technicians
+void add_technician(int client_socket, char *ip, int port)
+{
+    if (nb_technician >= NUMBER_MAX_OF_TECHNICIANS) {
+        printf("Error: too many technicians\n");
+        return;
+    }
+
+    Technician t;
+    t.socket = client_socket;
+    t.ip = ip;
+    t.port = port;
+    technicians[nb_technician] = t;
+    nb_technician++;
+
+    printf("Added technician (%s:%d)\n", ip, port);
+}
 
 int main()
 {
-    int server_socket, new_socket, client_socket, technician_socket, expert_socket, n;
+    int server_socket, client_socket, technician_socket, expert_socket, n;
     struct sockaddr_in server_address, client_address;
     char message[1024];
     char auth_message[1024];
     char *response;
-    
+
     // Create socket
     server_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (server_socket == -1)
@@ -137,7 +176,7 @@ int main()
             exit(1);
         }
 
-        printf("Authentification message : %s", auth_message);
+        printf("Authentification message : %s\n", auth_message);
 
         clear_str(auth_message);
 
@@ -161,6 +200,7 @@ int main()
         // We set up the interface for the technician
         else if (strcmp(auth_message, "technician") == 0) {
             printf("Technician connected\n");
+            add_technician(client_socket,inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
         }
         // We set up the interface for the expert
         else if (strcmp(auth_message, "expert") == 0) {
