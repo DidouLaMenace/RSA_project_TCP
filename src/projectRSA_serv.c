@@ -69,11 +69,11 @@ void *client_threading(void *arg)
                 response = strncat(responsefrom,response,2*MAX_SIZE_ANSWER);
             }
             else {
-                response = "No one can help you, sorry.\n";
+                response = NULL;
             }
         }
     }
-
+    
     // Send response to client
     if (write(client_socket, response, strlen(response)) < 0)
     {
@@ -91,16 +91,28 @@ void *client_threading(void *arg)
 
 // Sending client's request to all technicians
 char* processing_technicians(char *message) {
-    printf("Sending request to all technicians\n"); 
-    char* response = "Message sent to technicians\n";
+    printf("Processing technicians\n");
+    char* response;
     for (int i = 0; i < nb_technician; i++) {
         int technician_socket = technicians[i].socket;
-        message = strncat(message, "(from technician)", 2*MAX_SIZE_ANSWER);
         if (send(technician_socket, message, strlen(message), 0) < 0) {
             printf("Error sending message to technician\n");
             exit(1);
         }
     }
+
+    printf("Message sent to all technicians\n");
+
+    for (int i = 0; i < nb_technician; i++) {
+        int technicians_socket = technicians[i].socket;
+        memset(response, 0, sizeof(response));
+        if(recv(technicians_socket, response, sizeof(response), 0) < 0) {
+            printf("Error receiving message from technician\n");
+            exit(1);
+        }
+    }
+    
+    clear_str(response);
 
     return response;
 }

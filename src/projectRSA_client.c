@@ -74,8 +74,9 @@ int main(int argc, char *argv[])
             exit(1);
         }
 
+        
         printf("%s\n", response);
-
+        
         // Close connection
         close(client_socket);
     }
@@ -121,8 +122,6 @@ int main(int argc, char *argv[])
                 // Process the oldest request in the queue
                 char* request = request_queue[0];
 
-                printf("Received request from client: %s\n", request);
-
                 // Send response to client
                 printf("Enter your response: ");
                 fgets(response, sizeof(response), stdin);
@@ -150,7 +149,7 @@ int main(int argc, char *argv[])
             else {
                 request_count++;
             }
-            printf("Response : %s\n", response);
+            printf("Request from client : %s\n", response);
         }
 
         // Close connection
