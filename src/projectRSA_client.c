@@ -112,29 +112,7 @@ int main(int argc, char *argv[])
             exit(1);
         }
 
-        // Manage the client's request according to a queue
-        char request_queue[1024][1024];
-        int request_count = 0;
-
         while(1) {
-            // Check if there are any pending client requests
-            if (request_count > 0) {
-                // Process the oldest request in the queue
-                char* request = request_queue[0];
-
-                // Send response to client
-                printf("Enter your response: ");
-                fgets(response, sizeof(response), stdin);
-
-                // Remove the processed request from the queue
-                for (int i = 0; i < request_count - 1; i++) {
-                    strcpy(request_queue[i], request_queue[i+1]);
-                }
-                request_count--;
-
-                send(technician_socket, response, strlen(response), 0);
-            }
-
             // Read response from server
             memset(response, 0, sizeof(response));
             if (read(technician_socket, response, sizeof(response)) < 0)
@@ -142,10 +120,15 @@ int main(int argc, char *argv[])
                 printf("Error reading response\n");
                 exit(1);
             }
-            else {
-                request_count++;
-            }
+
             printf("Request from client : %s\n", response);
+
+            // Write the response
+            printf("Enter your response: ");
+            fgets(response, sizeof(response), stdin);
+
+            // Send message to server
+            send(technician_socket, response, strlen(response), 0);
         }
 
         // Close connection

@@ -15,11 +15,12 @@
 #define MAX_SIZE_ANSWER 1000
 #define NUMBER_MAX_OF_TECHNICIANS 10
 #define PORT 8888
+#define MAX_QUEUE_SIZE 100
 
-    
 // Technician
 Technician technicians[NUMBER_MAX_OF_TECHNICIANS];
 int nb_technician = 0;
+
 
 // Processing client's request with multi-threading to treat several clients at the same time
 void *client_threading(void *arg)
@@ -91,27 +92,39 @@ void *client_threading(void *arg)
 
 // Sending client's request to all technicians
 char* processing_technicians(char *message) {
-    printf("Processing technicians\n");
     char* response;
-    for (int i = 0; i < nb_technician; i++) {
-        int technician_socket = technicians[i].socket;
-        if (send(technician_socket, message, strlen(message), 0) < 0) {
-            printf("Error sending message to technician\n");
-            exit(1);
+    int socket_technician = -1;
+    int index_technician = -1;
+
+    for (int i = 0 ; i < nb_technician ; i++)
+    {
+        if (technicians[i].status == 0) {
+            socket_technician = technicians[i].socket;
+            index_technician = i;
+            technicians[i].status = 1;
+            break;
         }
     }
 
-    printf("Message sent to all technicians\n");
-
-    for (int i = 0; i < nb_technician; i++) {
-        int technicians_socket = technicians[i].socket;
-        memset(response, 0, sizeof(response));
-        if(recv(technicians_socket, response, sizeof(response), 0) < 0) {
-            printf("Error receiving message from technician\n");
-            exit(1);
-        }
-        printf("Response ozdizdkjidzji%s",response);
+    // If no technician is available, add the request to the queue and wait for a technician
+    if (socket_technician == -1 || index_technician == -1) {
+        
     }
+
+    if (send(socket_technician, message, strlen(message), 0) < 0) {
+        printf("Error sending message to technician\n");
+        exit(1);
+    }
+    printf("Sent message to technician %d\n",socket_technician);
+
+    if (recv(socket_technician, response, sizeof(response), 0) < 0) {
+        printf("Error receiving message from technician\n");
+        exit(1);
+    }
+    printf("Response from technician %d : %s\n",socket_technician,response);
+    
+    // Now the technician is available
+    technicians[index_technician].status = 0;
     
     clear_str(response);
 
@@ -130,6 +143,7 @@ void add_technician(int client_socket, char *ip, int port)
     t.socket = client_socket;
     t.ip = ip;
     t.port = port;
+    t.status = 0;
     technicians[nb_technician] = t;
     nb_technician++;
 
