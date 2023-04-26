@@ -126,17 +126,13 @@ int main(int argc, char *argv[])
                 printf("Enter your response: ");
                 fgets(response, sizeof(response), stdin);
 
-                if (write(client_socket, response, strlen(response)) < 0)
-                {
-                    printf("Error sending message\n");
-                    exit(1);
-                }
-
                 // Remove the processed request from the queue
                 for (int i = 0; i < request_count - 1; i++) {
                     strcpy(request_queue[i], request_queue[i+1]);
                 }
                 request_count--;
+
+                send(technician_socket, response, strlen(response), 0);
             }
 
             // Read response from server

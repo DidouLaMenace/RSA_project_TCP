@@ -110,6 +110,7 @@ char* processing_technicians(char *message) {
             printf("Error receiving message from technician\n");
             exit(1);
         }
+        printf("Response ozdizdkjidzji%s",response);
     }
     
     clear_str(response);
