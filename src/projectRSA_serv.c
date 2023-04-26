@@ -96,20 +96,29 @@ char* processing_technicians(char *message) {
     int socket_technician = -1;
     int index_technician = -1;
 
-    for (int i = 0 ; i < nb_technician ; i++)
-    {
-        if (technicians[i].status == 0) {
-            socket_technician = technicians[i].socket;
-            index_technician = i;
-            technicians[i].status = 1;
-            break;
-        }
-    }
+    // for (int i = 0 ; i < nb_technician ; i++)
+    // {
+    //     if (technicians[i].status == 0) {
+    //         socket_technician = technicians[i].socket;
+    //         index_technician = i;
+    //         technicians[i].status = 1;
+    //         break;
+    //     }
+    // }
 
     // If no technician is available, add the request to the queue and wait for a technician
-    if (socket_technician == -1 || index_technician == -1) {
-        
+    while (socket_technician == -1 || index_technician == -1) {
+        for (int i = 0 ; i < nb_technician ; i++)
+        {
+            if (technicians[i].status == 0) {
+                socket_technician = technicians[i].socket;
+                index_technician = i;
+                technicians[i].status = 1;
+                break;
+            }
+        }
     }
+    
 
     if (send(socket_technician, message, strlen(message), 0) < 0) {
         printf("Error sending message to technician\n");
