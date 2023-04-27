@@ -15,7 +15,6 @@
 #define MAX_SIZE_ANSWER 1000
 #define NUMBER_MAX_OF_TECHNICIANS 10
 #define PORT 8888
-#define MAX_QUEUE_SIZE 100
 
 // Technician
 Technician technicians[NUMBER_MAX_OF_TECHNICIANS];
@@ -96,16 +95,6 @@ char* processing_technicians(char *message) {
     int socket_technician = -1;
     int index_technician = -1;
 
-    // for (int i = 0 ; i < nb_technician ; i++)
-    // {
-    //     if (technicians[i].status == 0) {
-    //         socket_technician = technicians[i].socket;
-    //         index_technician = i;
-    //         technicians[i].status = 1;
-    //         break;
-    //     }
-    // }
-
     // If no technician is available, add the request to the queue and wait for a technician
     while (socket_technician == -1 || index_technician == -1) {
         for (int i = 0 ; i < nb_technician ; i++)
@@ -130,6 +119,9 @@ char* processing_technicians(char *message) {
         printf("Error receiving message from technician\n");
         exit(1);
     }
+
+    clear_str(response);
+
     printf("Response from technician %d : %s\n",socket_technician,response);
     
     // Now the technician is available

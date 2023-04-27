@@ -9,12 +9,14 @@
 
 #define SERVER_IP "127.0.0.1"
 #define PORT 8888
+#define MAX_SIZE_ANSWER 1024
 
 int main(int argc, char *argv[])
 {
     int client_socket, technician_socket, expert_socket, n;
     struct sockaddr_in client_address, server_address, technician_server, expert_server;
-    char message[1024], response[1024];
+    char message_from_client[1024], response_to_client[1024];
+    char message_to_technician[1024], response_from_technician[1024];
     char auth_message[1024];
 
     if (argc != 2)
@@ -57,25 +59,25 @@ int main(int argc, char *argv[])
         }
 
         printf("Enter your message: ");
-        fgets(message, sizeof(message), stdin);
+        fgets(message_from_client, sizeof(message_from_client), stdin);
 
         // Send message to server
-        if (write(client_socket, message, strlen(message)) < 0)
+        if (write(client_socket, message_from_client, strlen(message_from_client)) < 0)
         {
             printf("Error sending message\n");
             exit(1);
         }
 
         // Read response from server
-        memset(response, 0, sizeof(response));
-        if (read(client_socket, response, sizeof(response)) < 0)
+        memset(response_to_client, 0, sizeof(response_to_client));
+        if (read(client_socket, response_to_client, sizeof(response_to_client)) < 0)
         {
             printf("Error reading response\n");
             exit(1);
         }
 
         
-        printf("%s\n", response);
+        printf("%s\n", response_to_client);
         
         // Close connection
         close(client_socket);
@@ -99,7 +101,7 @@ int main(int argc, char *argv[])
         technician_server.sin_addr.s_addr = inet_addr(SERVER_IP);
         technician_server.sin_port = htons(PORT);
 
-        // Connect to technician server
+        // Connect to technician serve
         if (connect(technician_socket, (struct sockaddr*)&technician_server, sizeof(technician_server)) < 0)
         {
             printf("Error connecting to technician server\n");
@@ -114,21 +116,23 @@ int main(int argc, char *argv[])
 
         while(1) {
             // Read response from server
-            memset(response, 0, sizeof(response));
-            if (read(technician_socket, response, sizeof(response)) < 0)
+            memset(message_to_technician, 0, sizeof(message_to_technician));
+            if (read(technician_socket, message_to_technician, sizeof(message_to_technician)) < 0)
             {
                 printf("Error reading response\n");
                 exit(1);
             }
 
-            printf("Request from client : %s\n", response);
+            printf("Request from client : %s\n", message_to_technician);
 
             // Write the response
             printf("Enter your response: ");
-            fgets(response, sizeof(response), stdin);
+            fgets(response_from_technician, sizeof(response_from_technician), stdin);
 
+            clear_str(response_from_technician);
+            printf("Response envoyée: %s\n", response_from_technician);
             // Send message to server
-            send(technician_socket, response, strlen(response), 0);
+            send(technician_socket, response_from_technician, strlen(response_from_technician), 0);
         }
 
         // Close connection
