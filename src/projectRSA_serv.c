@@ -91,9 +91,14 @@ void *client_threading(void *arg)
 
 // Sending client's request to all technicians
 char* processing_technicians(char *message) {
-    char* response;
     int socket_technician = -1;
     int index_technician = -1;
+
+    char *response_from_technicians = malloc(sizeof(char) * MAX_SIZE_ANSWER);
+    if (response_from_technicians == NULL) {
+        printf("Error allocating memory for response\n");
+        exit(1);
+    }
 
     // If no technician is available, add the request to the queue and wait for a technician
     while (socket_technician == -1 || index_technician == -1) {
@@ -113,23 +118,23 @@ char* processing_technicians(char *message) {
         printf("Error sending message to technician\n");
         exit(1);
     }
+    printf("message %s",message);
+    printf("response %s", response_from_technicians);
     printf("Sent message to technician %d\n",socket_technician);
 
-    if (recv(socket_technician, response, sizeof(response), 0) < 0) {
+    if (recv(socket_technician, response_from_technicians, sizeof(response_from_technicians), 0) < 0) {
         printf("Error receiving message from technician\n");
         exit(1);
     }
 
-    clear_str(response);
+    clear_str(response_from_technicians);
 
-    printf("Response from technician %d : %s\n",socket_technician,response);
+    printf("Response from technician %d : %s\n",socket_technician,response_from_technicians);
     
     // Now the technician is available
     technicians[index_technician].status = 0;
-    
-    clear_str(response);
 
-    return response;
+    return response_from_technicians;
 }
 
 // Add a technician to the list of technicians
@@ -155,9 +160,7 @@ int main()
 {
     int server_socket, client_socket, technician_socket, expert_socket, n;
     struct sockaddr_in server_address, client_address;
-    char message[1024];
     char auth_message[1024];
-    char *response;
 
     // Create socket
     server_socket = socket(AF_INET, SOCK_STREAM, 0);
