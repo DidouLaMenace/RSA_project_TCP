@@ -122,7 +122,7 @@ char* processing_technicians(char *message) {
     printf("response %s", response_from_technicians);
     printf("Sent message to technician %d\n",socket_technician);
 
-    if (recv(socket_technician, response_from_technicians, sizeof(response_from_technicians), 0) < 0) {
+    if (recv(socket_technician, response_from_technicians, MAX_SIZE_ANSWER, 0) < 0) {
         printf("Error receiving message from technician\n");
         exit(1);
     }
