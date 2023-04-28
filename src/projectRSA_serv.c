@@ -11,14 +11,14 @@
 #include "technician.h"
 #include "experts.c"
 #include "utils.c"
+#include "technician.c"
 
 #define MAX_SIZE_ANSWER 1000
 #define NUMBER_MAX_OF_TECHNICIANS 10
 #define PORT 8888
 
-// Technician
-Technician technicians[NUMBER_MAX_OF_TECHNICIANS];
-int nb_technician = 0;
+// Technician : Create list for technicians
+linked_list_technician *technicians;
 
 
 // Processing client's request with multi-threading to treat several clients at the same time
@@ -93,21 +93,26 @@ void *client_threading(void *arg)
 char* processing_technicians(char *message) {
     int socket_technician = -1;
     int index_technician = -1;
+    int nb_technician = size_linked_list(technicians);
+    Technician *t;
 
+    // Allocated memory for response of technician 
     char *response_from_technicians = malloc(sizeof(char) * MAX_SIZE_ANSWER);
     if (response_from_technicians == NULL) {
         printf("Error allocating memory for response\n");
         exit(1);
     }
 
+
     // If no technician is available, add the request to the queue and wait for a technician
     while (socket_technician == -1 || index_technician == -1) {
         for (int i = 0 ; i < nb_technician ; i++)
         {
-            if (technicians[i].status == 0) {
-                socket_technician = technicians[i].socket;
+            t = get_technician_by_index(technicians, i);
+            if (t->status == 0) {
+                socket_technician = t->socket;
                 index_technician = i;
-                technicians[i].status = 1;
+                t->status = 1;
                 break;
             }
         }
@@ -118,8 +123,7 @@ char* processing_technicians(char *message) {
         printf("Error sending message to technician\n");
         exit(1);
     }
-    printf("message %s",message);
-    printf("response %s", response_from_technicians);
+
     printf("Sent message to technician %d\n",socket_technician);
 
     if (recv(socket_technician, response_from_technicians, MAX_SIZE_ANSWER, 0) < 0) {
@@ -127,34 +131,43 @@ char* processing_technicians(char *message) {
         exit(1);
     }
 
+    if (response_from_technicians == "END") {
+        remove_technician_by_socket(technicians, socket_technician);
+        return NULL;
+    }
+
+    if (response_from_technicians == "./null") {
+        return NULL;
+    }
+
     clear_str(response_from_technicians);
 
     printf("Response from technician %d : %s\n",socket_technician,response_from_technicians);
     
     // Now the technician is available
-    technicians[index_technician].status = 0;
+    t->status = 0;
 
     return response_from_technicians;
 }
 
 // Add a technician to the list of technicians
-void add_technician(int client_socket, char *ip, int port)
-{
-    if (nb_technician >= NUMBER_MAX_OF_TECHNICIANS) {
-        printf("Error: too many technicians\n");
-        return;
-    }
+// void add_technician(int client_socket, char *ip, int port)
+// {
+//     if (nb_technician >= NUMBER_MAX_OF_TECHNICIANS) {
+//         printf("Error: too many technicians\n");
+//         return;
+//     }
 
-    Technician t;
-    t.socket = client_socket;
-    t.ip = ip;
-    t.port = port;
-    t.status = 0;
-    technicians[nb_technician] = t;
-    nb_technician++;
+//     Technician t;
+//     t.socket = client_socket;
+//     t.ip = ip;
+//     t.port = port;
+//     t.status = 0;
+//     technicians[nb_technician] = t;
+//     nb_technician++;
 
-    printf("Added technician (%s:%d)\n", ip, port);
-}
+//     printf("Added technician (%s:%d)\n", ip, port);
+// }
 
 int main()
 {
@@ -186,6 +199,8 @@ int main()
     listen(server_socket, 3);
 
     printf("Waiting for incoming connections...\n");
+
+    technicians = create_linked_list_technician();
 
     while(1)
     {
@@ -232,7 +247,16 @@ int main()
         // We set up the interface for the technician
         else if (strcmp(auth_message, "technician") == 0) {
             printf("Technician connected\n");
-            add_technician(client_socket,inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
+
+            if (size_linked_list(technicians) >= NUMBER_MAX_OF_TECHNICIANS) 
+            {
+                printf("Error: too many technicians\n");
+                continue;
+            }
+
+            Technician *t = create_technician(client_socket, inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
+            add_technician_to_linked_list(technicians, t);
+            //add_technician(client_socket,inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
         }
         // We set up the interface for the expert
         else if (strcmp(auth_message, "expert") == 0) {
@@ -243,6 +267,7 @@ int main()
         }
     }
     
+    list_destroy(technicians);
     close(server_socket);
     return 0;
 }

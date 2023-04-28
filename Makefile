@@ -2,7 +2,7 @@ projectrsa:
 	rm build/*
 	gcc -c src/robots.c -o build/robots.o
 
-	gcc -c src/technician.h -o build/technician.h
+	gcc -c src/technician.c -o build/technician.o
 
 	gcc -c src/experts.c -o build/experts.o
 

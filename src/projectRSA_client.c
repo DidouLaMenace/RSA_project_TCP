@@ -6,6 +6,7 @@
 #include <unistd.h>
 
 #include "utils.c"
+#include "technician.h"
 
 #define SERVER_IP "127.0.0.1"
 #define PORT 8888
@@ -134,10 +135,12 @@ int main(int argc, char *argv[])
             // Send message to server
             send(technician_socket, response_from_technician, strlen(response_from_technician), 0);
         }
+        
+        char end[3] = "END";
+        send(technician_socket, end, strlen(end), 0);
 
         // Close connection
         close(technician_socket);
-
     }
     // Processing experts part
     else if (strcmp(auth_message, "experts") == 0)
