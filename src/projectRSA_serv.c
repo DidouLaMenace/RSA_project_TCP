@@ -96,6 +96,11 @@ char* processing_technicians(char *message) {
     int nb_technician = size_linked_list(technicians);
     Technician *t;
 
+    printf("%d technicians available\n",nb_technician);
+    if (nb_technician == 0) {
+        return "No technician available. Please try again later.";
+    }
+
     // Allocated memory for response of technician 
     char *response_from_technicians = malloc(sizeof(char) * MAX_SIZE_ANSWER);
     if (response_from_technicians == NULL) {
@@ -132,6 +137,7 @@ char* processing_technicians(char *message) {
     }
 
     if (response_from_technicians == "END") {
+        printf("Technician %d disconnected\n",socket_technician);
         remove_technician_by_socket(technicians, socket_technician);
         return NULL;
     }
