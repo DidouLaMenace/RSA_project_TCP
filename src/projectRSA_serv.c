@@ -156,28 +156,9 @@ char* processing_technicians(char *message) {
     return response_from_technicians;
 }
 
-// Add a technician to the list of technicians
-// void add_technician(int client_socket, char *ip, int port)
-// {
-//     if (nb_technician >= NUMBER_MAX_OF_TECHNICIANS) {
-//         printf("Error: too many technicians\n");
-//         return;
-//     }
-
-//     Technician t;
-//     t.socket = client_socket;
-//     t.ip = ip;
-//     t.port = port;
-//     t.status = 0;
-//     technicians[nb_technician] = t;
-//     nb_technician++;
-
-//     printf("Added technician (%s:%d)\n", ip, port);
-// }
-
 int main()
 {
-    int server_socket, client_socket, technician_socket, expert_socket, n;
+    int server_socket, client_socket, n;
     struct sockaddr_in server_address, client_address;
     char auth_message[1024];
 
