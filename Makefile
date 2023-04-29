@@ -4,23 +4,23 @@ projectrsa:
 
 	gcc -c src/technician.c -o build/technician.o
 
-	gcc -c src/experts.c -o build/experts.o
+	gcc -c src/expert.c -o build/expert.o
 
-	gcc -c src/projectRSA_client.c -o build/projectRSA_client.o
-	gcc -c src/projectRSA_serv.c -o build/projectRSA_serv.o
+	gcc -c src/client_rsa.c -o build/client_rsa.o
+	gcc -c src/server_rsa.c -o build/server_rsa.o
 
-	gcc build/projectRSA_client.o -o build/projectRSA_client
-	gcc build/projectRSA_serv.o -o build/projectRSA_serv
+	gcc build/client_rsa.o -o build/client_rsa
+	gcc build/server_rsa.o -o build/server_rsa
 
 projectrsa_client:
-	gcc -c src/projectRSA_client.c -o build/projectRSA_client.o
-	gcc build/projectRSA_client.o -o build/projectRSA_client
-	./build/projectRSA_client
+	gcc -c src/client_rsa.c -o build/client_rsa.o
+	gcc build/client_rsa.o -o build/client_rsa
+	./build/client_rsa
 
 projectrsa_serv:
-	gcc -c src/projectRSA_serv.c -o build/projectRSA_serv.o
-	gcc build/projectRSA_serv.o -o build/projectRSA_serv
-	./build/projectRSA_serv
+	gcc -c src/server_rsa.c -o build/server_rsa.o
+	gcc build/server_rsa.o -o build/server_rsa
+	./build/server_rsa
 	
 clean: 
 	rm build/*

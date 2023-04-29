@@ -25,14 +25,14 @@ Technician *create_technician(int socket, char *ip, int port)
     return technician;
 }
 
-bool list_is_empty(linked_list_technician *technicians)
+bool t_list_is_empty(linked_list_technician *technicians)
 {
     return technicians->head == NULL;
 }
 
 void add_technician_to_linked_list(linked_list_technician *technicians, Technician *technician)
 {
-    element *new_element = (element *) malloc(sizeof(element));
+    element_t *new_element = (element_t *) malloc(sizeof(element_t));
     if (new_element == NULL) {
         printf("Error allocating memory for new element\n");
         exit(1);
@@ -40,10 +40,10 @@ void add_technician_to_linked_list(linked_list_technician *technicians, Technici
     new_element->technician = technician;
     new_element->next = NULL;
 
-    if (list_is_empty(technicians)) {
+    if (t_list_is_empty(technicians)) {
         technicians->head = new_element;
     } else {
-        element *current_element = technicians->head;
+        element_t *current_element = technicians->head;
         while (current_element->next != NULL) {
             current_element = current_element->next;
         }
@@ -53,12 +53,12 @@ void add_technician_to_linked_list(linked_list_technician *technicians, Technici
 
 void remove_technician_by_socket(linked_list_technician *technicians, int socket)
 {
-    if (list_is_empty(technicians)) {
+    if (t_list_is_empty(technicians)) {
         return;
     }
 
-    element *current_element = technicians->head;
-    element *previous_element = NULL;
+    element_t *current_element = technicians->head;
+    element_t *previous_element = NULL;
 
     while (current_element != NULL) {
         if (current_element->technician->socket == socket) {
@@ -77,11 +77,11 @@ void remove_technician_by_socket(linked_list_technician *technicians, int socket
 
 Technician *get_technician_by_socket(linked_list_technician *technicians, int socket)
 {
-    if (list_is_empty(technicians)) {
+    if (t_list_is_empty(technicians)) {
         return NULL;
     }
 
-    element *current_element = technicians->head;
+    element_t *current_element = technicians->head;
 
     while (current_element != NULL) {
         if (current_element->technician->socket == socket) {
@@ -94,11 +94,11 @@ Technician *get_technician_by_socket(linked_list_technician *technicians, int so
 
 Technician *get_technician_by_index(linked_list_technician *technicians, int index)
 {
-    if (list_is_empty(technicians)) {
+    if (t_list_is_empty(technicians)) {
         return NULL;
     }
 
-    element *current_element = technicians->head;
+    element_t *current_element = technicians->head;
     int i = 0;
 
     while (current_element != NULL) {
@@ -111,13 +111,13 @@ Technician *get_technician_by_index(linked_list_technician *technicians, int ind
     return NULL;
 }
 
-int size_linked_list(linked_list_technician *technicians)
+int t_size_linked_list(linked_list_technician *technicians)
 {
-    if (list_is_empty(technicians)) {
+    if (t_list_is_empty(technicians)) {
         return 0;
     }
 
-    element *current_element = technicians->head;
+    element_t *current_element = technicians->head;
     int i = 0;
 
     while (current_element != NULL) {
@@ -127,14 +127,14 @@ int size_linked_list(linked_list_technician *technicians)
     return i;
 }
 
-void list_destroy(linked_list_technician *technicians)
+void t_list_destroy(linked_list_technician *technicians)
 {
-    if (list_is_empty(technicians)) {
+    if (t_list_is_empty(technicians)) {
         return;
     }
 
-    element *current_element = technicians->head;
-    element *next_element = NULL;
+    element_t *current_element = technicians->head;
+    element_t *next_element = NULL;
 
     while (current_element != NULL) {
         next_element = current_element->next;
