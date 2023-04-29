@@ -78,6 +78,10 @@ void *client_threading(void *arg)
             }
         }
     }
+
+    if (response == NULL) {
+        response = "No response from robot, technician or expert. Please try again later.";
+    }
     
     // Send response to client
     if (write(client_socket, response, strlen(response)) < 0)
@@ -141,12 +145,15 @@ char* processing_technicians(char *message) {
         exit(1);
     }
 
-    if (strcmp(response_from_technicians,"EXIT") == 0){
+    // Processing command EXIT and NULL from technician
+    if (strcmp(response_from_technicians,"EXIT") == 0)
+    {
         remove_technician_by_socket(technicians,socket_technician);
         return processing_technicians(message);
     }
 
-    if (response_from_technicians == "NULL") {
+    if (strcmp(response_from_technicians,"NULL") == 0) 
+    {
         return NULL;
     }
 
