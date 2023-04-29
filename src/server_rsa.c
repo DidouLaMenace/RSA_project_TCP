@@ -98,11 +98,80 @@ void *client_threading(void *arg)
     return NULL;
 }
 
-// Sending client's request to all technicians
+// Send request to a technician and return the response
 char* processing_technicians(char *message) {
     int socket_technician = -1;
     int index_technician = -1;
     int nb_technician = size_linked_list(technicians);
+    Technician *t;
+
+    printf("%d technicians available\n",nb_technician);
+
+    if (nb_technician == 0) {
+        return "No technician available. Please try again later.";
+    }
+
+    // Allocated memory for response of technician 
+    char *response_from_technicians = malloc(sizeof(char) * MAX_SIZE_ANSWER);
+    if (response_from_technicians == NULL) {
+        printf("Error allocating memory for response\n");
+        exit(1);
+    }
+
+    // If no technician is available, add the request to the queue and wait for a technician
+    while (socket_technician == -1 || index_technician == -1) {
+        for (int i = 0 ; i < nb_technician ; i++)
+        {
+            t = get_technician_by_index(technicians, i);
+            if (t->status == 0) {
+                socket_technician = t->socket;
+                index_technician = i;
+                t->status = 1;
+                break;
+            }
+        }
+    }
+    
+
+    if (send(socket_technician, message, strlen(message), 0) < 0) {
+        printf("Error sending message to technician\n");
+        exit(1);
+    }
+
+    printf("Sent message to technician %d\n",socket_technician);
+
+    if (recv(socket_technician, response_from_technicians, MAX_SIZE_ANSWER, 0) < 0) {
+        printf("Error receiving message from technician\n");
+        exit(1);
+    }
+
+    // Processing command EXIT and NULL from technician
+    if (strcmp(response_from_technicians,"EXIT") == 0)
+    {
+        remove_technician_by_socket(technicians,socket_technician);
+        return processing_technicians(message);
+    }
+
+    if (strcmp(response_from_technicians,"NULL") == 0) 
+    {
+        return NULL;
+    }
+
+    clear_str(response_from_technicians);
+
+    printf("Response from technician %d : %s\n",socket_technician,response_from_technicians);
+    
+    // Now the technician is available
+    t->status = 0;
+
+    return response_from_technicians;
+}
+
+// Send request to an expert and return the response
+char* processing_experts(char *message) {
+    int socket_expert = -1;
+    int index_expert = -1;
+    int nb_technician = size_linked_list(experts);
     Technician *t;
 
     printf("%d technicians available\n",nb_technician);
