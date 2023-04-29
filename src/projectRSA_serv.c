@@ -108,7 +108,7 @@ char* processing_technicians(char *message) {
         printf("Error allocating memory for response\n");
         exit(1);
     }
-
+    printf("Initialzed : %s",response_from_technicians);
 
     // If no technician is available, add the request to the queue and wait for a technician
     while (socket_technician == -1 || index_technician == -1) {
@@ -137,11 +137,18 @@ char* processing_technicians(char *message) {
         exit(1);
     }
 
-    clear_str(response_from_technicians);
+    printf("response : %s",response_from_technicians);
+    if (strcmp(response_from_technicians,"END") == 0){
+        printf("C'est good");
+        remove_technician_by_socket(technicians,socket_technician);
+        return processing_technicians(message);
+    }
 
     if (response_from_technicians == "./NULL") {
         return NULL;
     }
+
+    clear_str(response_from_technicians);
 
     printf("Response from technician %d : %s\n",socket_technician,response_from_technicians);
     
