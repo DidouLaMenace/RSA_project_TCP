@@ -159,16 +159,16 @@ int main(int argc, char *argv[])
                 if (signal_end == 1) 
                 {
                     printf("You are disconnected\n");
-                    char end[3] = "END";
-                    send(technician_socket, end, strlen(end), 0);
+                    char exit[4] = "EXIT";
+                    send(technician_socket, exit, strlen(exit), 0);
                     break;
                 }
 
                 if (strcmp(response_from_technician, "EXIT") == 0)
                 {
                     printf("You are disconnected\n");
-                    char end[3] = "END";
-                    send(technician_socket, end, strlen(end), 0);
+                    char exit[4] = "EXIT";
+                    send(technician_socket, exit, strlen(exit), 0);
                     break;
                 }
             }

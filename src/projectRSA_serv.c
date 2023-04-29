@@ -141,12 +141,12 @@ char* processing_technicians(char *message) {
         exit(1);
     }
 
-    if (strcmp(response_from_technicians,"END") == 0){
+    if (strcmp(response_from_technicians,"EXIT") == 0){
         remove_technician_by_socket(technicians,socket_technician);
         return processing_technicians(message);
     }
 
-    if (response_from_technicians == "./NULL") {
+    if (response_from_technicians == "NULL") {
         return NULL;
     }
 
