@@ -97,6 +97,7 @@ char* processing_technicians(char *message) {
     Technician *t;
 
     printf("%d technicians available\n",nb_technician);
+
     if (nb_technician == 0) {
         return "No technician available. Please try again later.";
     }
@@ -136,17 +137,11 @@ char* processing_technicians(char *message) {
         exit(1);
     }
 
-    if (response_from_technicians == "END") {
-        printf("Technician %d disconnected\n",socket_technician);
-        remove_technician_by_socket(technicians, socket_technician);
-        return NULL;
-    }
-
-    if (response_from_technicians == "./null") {
-        return NULL;
-    }
-
     clear_str(response_from_technicians);
+
+    if (response_from_technicians == "./NULL") {
+        return NULL;
+    }
 
     printf("Response from technician %d : %s\n",socket_technician,response_from_technicians);
     
