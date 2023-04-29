@@ -65,6 +65,7 @@ void *client_threading(void *arg)
         } 
         else {
             response = processing_technicians(message);
+            
             if (response != NULL) {
                 char responsefrom[MAX_SIZE_ANSWER] = "Response from technician : ";
                 response = strncat(responsefrom,response,2*MAX_SIZE_ANSWER);
@@ -134,8 +135,7 @@ char* processing_technicians(char *message) {
             }
         }
     }
-    
-    printf("sending");
+
     if (send(socket_technician, message, strlen(message), 0) < 0) {
         printf("Error sending message to technician\n");
         exit(1);
@@ -157,6 +157,7 @@ char* processing_technicians(char *message) {
 
     if (strcmp(response_from_technicians,"NULL") == 0) 
     {
+        t->status = 0;
         return NULL;
     }
 
