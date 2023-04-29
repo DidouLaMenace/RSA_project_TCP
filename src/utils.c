@@ -3,6 +3,8 @@
 #include <string.h>
 #include <ctype.h>
 
+#define MAX_SIZE_ANSWER 50
+
 // Get the authentification message from the client without the \0 and any space before and after the message
 void clear_str(char* str)
 {

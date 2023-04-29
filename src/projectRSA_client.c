@@ -11,14 +11,18 @@
 
 #define SERVER_IP "127.0.0.1"
 #define PORT 8888
-#define MAX_SIZE_ANSWER 1024
 
 // Signal to know if the technician tap Ctrl+C or Ctrl+Z
 int signal_end = 0;
 
-void signal_handler(int signal)
+void signal_handler(int signum)
 {
-    signal_end = 1;
+    // if (signum == SIGINT || signum == SIGTSTP)
+    // {
+    //     printf("\nYou pressed Ctrl+C or Ctrl+Z\n");
+    //     signal(signum, SIG_DFL);  // reset the signal to its default behavior
+    //     signal_end = 1;
+    // }
 }
 
 int main(int argc, char *argv[])
@@ -186,6 +190,14 @@ int main(int argc, char *argv[])
                 fgets(response_from_technician, sizeof(response_from_technician), stdin);
 
                 clear_str(response_from_technician);
+
+                while (strlen(response_from_technician) >= MAX_SIZE_ANSWER)
+                {
+                    printf("ERROR : Your response is too long, please try again\n");
+                    printf("Enter your response: ");
+                    fgets(response_from_technician, sizeof(response_from_technician), stdin);
+                    clear_str(response_from_technician);
+                }
 
                 // Send message to server
                 send(technician_socket, response_from_technician, strlen(response_from_technician), 0);

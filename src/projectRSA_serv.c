@@ -13,7 +13,6 @@
 #include "utils.c"
 #include "technician.c"
 
-#define MAX_SIZE_ANSWER 1000
 #define NUMBER_MAX_OF_TECHNICIANS 10
 #define PORT 8888
 
@@ -46,30 +45,36 @@ void *client_threading(void *arg)
     }
 
     clear_str(message);
-    
-    printf("Received message from client %s:%d : %s\n", inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port),message);
 
-    // Process message
-    response = processing_robots(message);
-
-    if (response != NULL) {
-        char responsefrom[MAX_SIZE_ANSWER] = "Response from robot : ";
-        response = strncat(responsefrom,response,2*MAX_SIZE_ANSWER);
-    } 
+    if (strlen(message) >= MAX_SIZE_ANSWER)
+    {
+        response = "Your message is too long. Please try again.";
+    }
     else {
-        response = processing_technicians(message);
+        printf("Received message from client %s:%d : %s\n", inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port),message);
+
+        // Process message
+        response = processing_robots(message);
+
         if (response != NULL) {
-            char responsefrom[MAX_SIZE_ANSWER] = "Response from technician : ";
+            char responsefrom[MAX_SIZE_ANSWER] = "Response from robot : ";
             response = strncat(responsefrom,response,2*MAX_SIZE_ANSWER);
-        }
+        } 
         else {
-            response = processing_experts(message);
+            response = processing_technicians(message);
             if (response != NULL) {
-                char responsefrom[MAX_SIZE_ANSWER] = "Response from expert : ";
+                char responsefrom[MAX_SIZE_ANSWER] = "Response from technician : ";
                 response = strncat(responsefrom,response,2*MAX_SIZE_ANSWER);
             }
             else {
-                response = NULL;
+                response = processing_experts(message);
+                if (response != NULL) {
+                    char responsefrom[MAX_SIZE_ANSWER] = "Response from expert : ";
+                    response = strncat(responsefrom,response,2*MAX_SIZE_ANSWER);
+                }
+                else {
+                    response = NULL;
+                }
             }
         }
     }
@@ -108,7 +113,6 @@ char* processing_technicians(char *message) {
         printf("Error allocating memory for response\n");
         exit(1);
     }
-    printf("Initialzed : %s",response_from_technicians);
 
     // If no technician is available, add the request to the queue and wait for a technician
     while (socket_technician == -1 || index_technician == -1) {
@@ -137,9 +141,7 @@ char* processing_technicians(char *message) {
         exit(1);
     }
 
-    printf("response : %s",response_from_technicians);
     if (strcmp(response_from_technicians,"END") == 0){
-        printf("C'est good");
         remove_technician_by_socket(technicians,socket_technician);
         return processing_technicians(message);
     }
