@@ -15,12 +15,10 @@ projectrsa:
 projectrsa_client:
 	gcc -c src/client_rsa.c -o build/client_rsa.o
 	gcc build/client_rsa.o -o build/client_rsa
-	./build/client_rsa
 
 projectrsa_serv:
 	gcc -c src/server_rsa.c -o build/server_rsa.o
 	gcc build/server_rsa.o -o build/server_rsa
-	./build/server_rsa
 	
 clean: 
 	rm build/*

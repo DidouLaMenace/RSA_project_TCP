@@ -112,7 +112,7 @@ char* processing_technicians(char *message) {
     printf("%d technicians available\n",nb_technician);
 
     if (nb_technician == 0) {
-        return "No technician available. Please try again later.";
+        return NULL;
     }
 
     // Allocated memory for response of technician 
@@ -181,7 +181,7 @@ char* processing_experts(char *message) {
     printf("%d experts available\n",nb_expert);
 
     if (nb_expert == 0) {
-        return "No experts available. Please try again later.";
+        return NULL;
     }
 
     // Allocated memory for response of expert 
