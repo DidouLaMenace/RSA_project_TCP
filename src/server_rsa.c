@@ -227,6 +227,7 @@ char* processing_experts(char *message) {
 
     if (strcmp(response_from_experts,"NULL") == 0) 
     {
+        e->status = 0;
         return NULL;
     }
 
