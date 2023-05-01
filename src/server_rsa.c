@@ -324,9 +324,10 @@ int main()
             if (t_size_linked_list(technicians) >= NUMBER_MAX_OF_TECHNICIANS) 
             {
                 printf("Error: too many technicians\n");
+                send(client_socket, "ERROR", strlen("ERROR"), 0);
                 continue;
             }
-
+            
             Technician *t = create_technician(client_socket, inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
             add_technician_to_linked_list(technicians, t);
         }
@@ -337,6 +338,7 @@ int main()
             if (e_size_linked_list(experts) >= NUMBER_MAX_OF_EXPERTS) 
             {
                 printf("Error: too many experts\n");
+                send(client_socket, "ERROR", strlen("ERROR"), 0);
                 continue;
             }
 

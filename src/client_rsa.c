@@ -173,6 +173,7 @@ int main(int argc, char *argv[])
                     send(technician_socket, exit, strlen(exit), 0);
                     break;
                 }
+
             }
             
             if (FD_ISSET(technician_socket, &tmp_fds))
@@ -183,6 +184,13 @@ int main(int argc, char *argv[])
                 {
                     printf("Error reading response\n");
                     exit(1);
+                }
+
+                // Manage too many technicians error.
+                if (strcmp(message_to_technician, "ERROR") == 0)
+                {
+                    printf("Too many technicians, you cann't connect to the server.\n");
+                    break;
                 }
 
                 printf("Request from client : %s\n", message_to_technician);
@@ -293,6 +301,13 @@ int main(int argc, char *argv[])
                 {
                     printf("Error reading response\n");
                     exit(1);
+                }
+
+                // Manage too many expert error.
+                if (strcmp(message_to_expert, "ERROR") == 0)
+                {
+                    printf("Too many experts, you cann't connect to the server.\n");
+                    break;
                 }
 
                 printf("Request from client : %s\n", message_to_expert);
