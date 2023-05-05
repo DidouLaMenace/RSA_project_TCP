@@ -1,5 +1,4 @@
 projectrsa:
-	rm build/*
 	gcc -c src/robots.c -o build/robots.o
 
 	gcc -c src/technician.c -o build/technician.o
