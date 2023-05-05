@@ -93,8 +93,9 @@ Pour quitter le serveur, les techniciens et les experts peuvent utiliser la comm
 
 ### Vidéo de test
 
-Nous vous invitons à lire les vidéos suivantes, montrant les exemples d'utilisation de l'application de chat.
+Nous vous invitons à lire la vidéo suivante, montrant l'exemple d'utilisation de l'application de chat.
 
+https://youtu.be/1A9rVmyPaI4
 
 
 
