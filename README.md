@@ -26,6 +26,7 @@ cd projectRSA
 
 ```bash
 # En utilisant le Makefile
+make clean
 make projectrsa
 
 # En utilisant le compilateur gcc
@@ -39,28 +40,6 @@ gcc build/client_rsa.o -o build/client_rsa
 gcc build/server_rsa.o -o build/server_rsa
 ```
 
-#### Compiler le serveur
-
-```bash
-# En utilisant le Makefile
-make projectrsa_serv
-
-# En utilisant le compilateur gcc
-gcc -c src/server_rsa.c -o build/server_rsa.o
-gcc build/server_rsa.o -o build/server_rsa
-```
-
-#### Compiler le client
-
-```bash
-# En utilisant le Makefile
-make projectrsa_client
-
-# En utilisant le compilateur gcc
-gcc -c src/client_rsa.c -o build/client_rsa.o
-gcc build/client_rsa.o -o build/client_rsa
-```
-
 ### Exécution
 
 #### Exécuter le serveur
@@ -70,31 +49,62 @@ gcc build/client_rsa.o -o build/client_rsa
 ```
 #### Exécuter le client
 
-Le fichier *client_rsa.c* contrôle les trois entités suivantes : Client, Technicien et Expert.
+Le fichier *client_rsa.c* doit être exécuté avec un argument "client,technician,expert".
 
-Si un client souhaite se connecter au serveur, il lui suffit d'écrire la commande :
+Pour connecter un client on effectue la commande suivante :
 ```bash
 ./build/client_rsa client
 ```
-Le client peut ensuite écrire sa requête.
 
-
-#### Exécuter le technicien
-Si un technicien prend ses fonctions et souhaite se connecter au serveur, il peut utiliser :
+Pour connecter un technician on effectue la commande suivante :
 ```bash
 ./build/client_rsa technician
 ```
-Le technicien peut ensuite attendre jusqu'à réception d'une requête.
 
-#### Exécuter l'expert
-Si un expert souhaite également prendre ses fonctions il peut utiliser : 
+Pour connecter un expert on effectue la commande suivante :
 ```bash
 ./build/client_rsa expert
 ```
-L'expert peut ensuite attendre jusqu'à réception d'une requête.
+
+Le technicien et l'expert attendent jusqu'à réception d'une requête.
+
+## Fonctionnement
+
+### Message envoyé au robot
+
+* Une fois le client connecté au serveur, il peut écrire sa demande.
+* La demande sera d'abord envoyé au robot. 
+* Si le robot reconnait un mot clé, il enverra la réponse prédéfini pour le type de réponse.
+
+### Message envoyé au technicien
+* Si aucun mot clé n'est reconnu par le robot, le message est envoyé à un technicien.
+* Lorsque le technicien reçoit le message il peut y répondre. 
+* Le message sera retourné au client qui pourra ainsi lire la réponse.
+
+### Message envoyé à un expert
+* Si aucun mot clé n'est reconnu par le robot, le message est envoyé à un technicien.
+* Si le technicien n'est pas en mesure de répondre à la requête du client il peut utiliser la commande **NULL** en guise de réponse.
+* Lorsque le serveur lira la réponse **NULL** du technicien, le serveur enverra la requête à un expert.
+* L'expert reçoit le message et peut donc y répondre.
+
+### Quitter le serveur
+
+Pour quitter le serveur, les techniciens et les experts peuvent utiliser la commande **EXIT**.
+
+### Vidéo de test
+
+Nous vous invitons à lire les vidéos suivantes, montrant les exemples d'utilisation de l'application de chat.
 
 
-## Les différents niveaux
+
+
+## Détails de l'implémentation
+
+### Le client
+
+Si il y a une demande trop importante des clients (c'est à dire s'il y a plus de requête que de techniciens et d'experts réunis), nous avons mis en place un système d'attente. La requête du client sera mis dans une pile en attendant qu'un technicien ou un expert se libère.
+
+### Une application de chat sur 3 niveaux
 
 Le serveur TCP se base sur 3 niveaux :
 * Lorsque le client envoie une requête au serveur, on teste le robot pour savoir s'il peut proposer une réponse. Si le robot est dans l'incapacité de répondre, la requête est envoyé à un technicien.
@@ -130,6 +140,8 @@ Lorsque le technicien ne souhaite plus attendre de requête, il peut utiliser la
 **NULL** peut seulement s'utiliser lorsque le technicien reçoit une requête. C'est à dire lorsque *"Enter your response* est affiché sur le terminal.
 **EXIT** doit être utiliser quand le technicien n'est pas en train de recevoir une requête.
 
+Par ailleurs, si un technicien écrit dans le terminal sans avoir reçu de requête cela ne provoque pas de bug.
+
 ### Niveau 3 : Experts
 
 Les experts sont réprésentés par une structure de donnée. 
@@ -151,49 +163,14 @@ Lorsque l'expert ne souhaite plus attendre de requête, il peut utiliser la comm
 **NULL** peut seulement s'utiliser lorsque l'expert reçoit une requête. C'est à dire lorsque *"Enter your response* est affiché sur le terminal.
 **EXIT** doit être utiliser quand le technicien n'est pas en train de recevoir une requête.
 
+Par ailleurs, si un expert écrit dans le terminal sans avoir reçu de requête cela ne provoque pas de bug.
 
-## Exemple d'utilisation
+## Piste d'amélioration
 
-**Mise en place du programme**
-Dans un terminal, tapez les commandes suivantes : 
-```
-git clone https://gitlab.telecomnancy.univ-lorraine.fr/Dylan.Fournier/projectrsa.git
+* Nous n'avons pas réussi à prendre en compte le fait qu'un technicien ou un expert puisse utiliser Ctrl+C ou Ctrl+Z pour quitter le serveur. L'utilisation de ces raccourcis provoque des bugs dans le code.
 
-cd projectRSA
+* Nous avons également constater un bug lorsque trop de techniciens sont connectés. En effet comme voulu, si le nombre maximum de technicien est atteint, plus aucun technicien ne peut se connecter, même si d'autre technicien se déconnecte entre temps. Ce qui pose un problème. Cependant nous pouvons considérer que les 10 mêmes techniciens sont connectés en permanance avec le serveur. On observe le même problème pour les experts. Nous avons identifié le problème mais nous n'avons pas pu mettre en place une solution.
 
-make projectrsa
-```
-
-**On démarre le serveur**
-Ouvrez un terminal et tapez la commande suivante :
-
-```bash
-./build/server_rsa
-```
-
-**Les techniciens et les experts se connectent au serveur**
-Ouvrez un terminal et tapez la commande suivante pour un technicien:
-
-```bash
-./build/client_rsa technician
-```
-
-Ouvrez un terminal et tapez la commande suivante pour un expert:
-
-```bash
-./build/client_rsa expert
-```
-
-Réitérez ces commandes en fonction du nombre de techniciens et d'experts que vous avez besoin.
-
-**Le client se connecte au serveur**
-
-Ouvrez un terminal et tapez la commande suivante :
-
-```bash
-./build/client_rsa client
-```
-
-Le client peut maintenant écrire sa requête et l'envoyer avec la touche *Entrée*. Vous pouvez désormais regarder les shell des techniciens et des experts pour savoir où a été reçu le message du client et pour y répondre.
+* Il aurait été utile de fermer tous les sockets connectés au server lorsqu'on ferme le serveur.
 
 
